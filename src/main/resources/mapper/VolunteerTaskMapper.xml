@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.marathon.mapper.VolunteerTaskMapper">
+    <select id="getTop10Volunteers" resultType="com.example.marathon.bean.dto.VolunteerTaskCountDTO">
+    <![CDATA[
+        SELECT u.real_name AS realName, COUNT(vt.id) AS taskCount
+        FROM volunteer_task vt
+                 JOIN users u ON vt.volunteer_id = u.id
+        WHERE vt.completed = 1  -- 已完成的任务
+        GROUP BY vt.volunteer_id
+        ORDER BY taskCount DESC
+            LIMIT 10
+        ]]>
+</select>
+
+
+    <select id="getTaskProgressList" resultType="com.example.marathon.bean.dto.TaskProgressDTO">
+        SELECT
+            vt.task_id AS taskId,
+            t.name AS taskName,
+            COUNT(*) AS assignedNumber,
+            SUM(CASE WHEN vt.completed = 1 THEN 1 ELSE 0 END) AS completedNumber
+        FROM
+            volunteer_task vt
+                LEFT JOIN
+            task t ON vt.task_id = t.id
+        GROUP BY
+            vt.task_id, t.name
+
+    </select>
+
+    <!-- 统计用户参与的总任务次数和任务完成情况 -->
+    <select id="getVolunteerTaskStats" resultType="com.example.marathon.bean.dto.VolunteerTaskStatsDTO">
+        SELECT
+            COUNT(*) AS totalTasks,
+            SUM(CASE WHEN completed = 1 THEN 1 ELSE 0 END) AS completedTasks,
+            SUM(CASE WHEN completed = 0 THEN 1 ELSE 0 END) AS uncompletedTasks
+        FROM volunteer_task
+        WHERE volunteer_id = #{volunteerId}
+    </select>
+
+</mapper>

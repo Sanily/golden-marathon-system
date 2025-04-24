@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.marathon.mapper.TaskMapper">
+
+
+    <select id="getMonthlyTaskStats" resultType="com.example.marathon.bean.dto.MonthlyTaskStatsDTO">
+        SELECT
+            DATE_FORMAT(t.created_at, '%Y-%m') AS month,
+    COUNT(DISTINCT t.id) AS total_tasks,
+    COUNT(DISTINCT subquery.task_id) AS completed_tasks
+        FROM task t
+            LEFT JOIN (
+            SELECT task_id
+            FROM volunteer_task
+            GROUP BY task_id
+            HAVING SUM(completed = 0) = 0
+            ) subquery ON t.id = subquery.task_id
+        GROUP BY DATE_FORMAT(t.created_at, '%Y-%m')
+        ORDER BY month ASC
+    </select>
+</mapper>

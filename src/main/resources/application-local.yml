@@ -1,0 +1,41 @@
+server:
+  port: 8888
+
+spring:
+  profiles:
+    active: local  # 如果你放到 application.yml 中的话，保留这个激活配置
+  config:
+    activate:
+      on-profile: local
+
+
+  redis: #如果要使用redis缓存 必须加上配置 spring.profiles.active.include = redis/ehcache/memory (目前只支持redis缓存)
+    host: localhost
+    max-total: 1000
+    port: 6379
+    max-wait-millis: 500
+    max-idle: 1000
+    database: 10
+    #password:
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/marathon?useUnicode=true&characterEncoding=utf8&useSSL=false&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=UTC
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    # Druid连接池配置（可选，如果你用了druid）
+    druid:
+      initial-size: 5
+      min-idle: 1
+      max-active: 20
+      validation-query: SELECT 1
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      min-evictable-idle-time-millis: 30000
+      time-between-eviction-runs-millis: 60000
+      web-stat-filter:
+        enabled: false
+      stat-view-servlet:
+        enabled: false
